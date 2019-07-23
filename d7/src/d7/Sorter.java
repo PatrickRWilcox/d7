@@ -12,149 +12,90 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 public abstract class Sorter<E> {
-	
+
 	////////////////////////////////////////////////////////////////////////////
 	// comparator handling wrappers ////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////
-		
+
 	private Comparator<E> cmp;
-	
+
 	public Sorter(Comparator<E> cmp) {
 		this.cmp = cmp;
 	}
-	
+
 	/**
-	 * Precondition:
-	 *     0            length
-	 * a: [     ?      ]
+	 * Precondition: 0 length a: [ ? ]
 	 * 
-	 * Postcondition: a is sorted, (according to cmp)
-	 *     0            length
-	 * a: [   sorted   ]
-	 * @throws NotImplementedError 
+	 * Postcondition: a is sorted, (according to cmp) 0 length a: [ sorted ]
+	 * 
+	 * @throws NotImplementedError
 	 */
-	public abstract void sort(List<E> a) throws NotImplementedError;
-	
+	public abstract void sort(List<E> a);
+
 	/** exchange a[i] and a[j] */
-	private void swap(List<E> a, int i, int j) {
+	protected void swap(List<E> a, int i, int j) {
 		E tmp = a.get(i);
 		a.set(i, a.get(j));
 		a.set(j, tmp);
 	}
-	
+
 	/**
-	 * Compare a[i] and a[j].
-	 * Return < 0 if a[i] < a[j]; return = 0 if a[i] = a[j] and return
-	 * >0 if a[i] > a[j]
+	 * Compare a[i] and a[j]. Return < 0 if a[i] < a[j]; return = 0 if a[i] = a[j]
+	 * and return >0 if a[i] > a[j]
 	 */
-	private int compare(List<E> a, int i, int j) {
+	protected int compare(List<E> a, int i, int j) {
 		return this.cmp.compare(a.get(i), a.get(j));
 	}
-	
-	////////////////////////////////////////////////////////////////////////////
-	// Insertion sort                                                         //
-	////////////////////////////////////////////////////////////////////////////
-	
-	private class InsertionSorter<E> extends Sorter{
 
-		public InsertionSorter(Comparator cmp) {
-			super(cmp);
-		}
+	////////////////////////////////////////////////////////////////////////////
+	// Insertion sort //
+	////////////////////////////////////////////////////////////////////////////
 
-		@Override
-		public void sort(List a) throws NotImplementedError {
-			 throw new NotImplementedError();
-		}
-		
-	}
 	
+
 	/**
-	 * Precondition:
-	 *     0            length
-	 * a: [     ?      ]
+	 * Precondition: 0 length a: [ ? ]
 	 * 
-	 * Postcondition: a is sorted, (according to cmp)
-	 *     0            length
-	 * a: [   sorted   ]
+	 * Postcondition: a is sorted, (according to cmp) 0 length a: [ sorted ]
 	 */
-	public void insertionSort(List<E> a) {
-		// invariant:    0          i         length
-		//           a: [  sorted  |    ?    ]
-		
-		int i = 0;
-		// initialization: a[0..i) is empty, thus sorted.
-		
-		while (i < a.size()) {
-			i ++; // progress: i is increasing
-			
-			// know:      0            i           length
-			//        a: [  sorted  |?|     ?     ]
-			
-			// inner loop invariant:
-			//               0          j                   i        length
-			//           a: [  sorted  |?|  sorted > a[j]  |   ?    ]
-			
-			int j = i - 1;
-			// inner loop initiailization: a[j+1..i) is empty, and so is > a[j]
-			
-			while (!(j == 0 || compare(a,j-1,j) <= 0)) {
-				j--; // progress: j decreases
-				swap(a,j,j+1);
-			}
-			
-			// after inner loop, want:
-			//      0            i           length
-			//  a: [   sorted   |     ?     ]
-			//
-			// termination: if j == 0, then a[0..i) is sorted, since a[0] is smallest and
-			// everything else is sorted.
-			// if a[j-1] <= a[j] then a[0..i) is a[0..j-1, j, j+1..i) and
-			//   a[0] <= a[1] <= .. <= a[j-1] by invariant
-			//   a[j-1] <= a[j] by loop termination
-			//   a[j] < a[j+1] <= a[j+1] <= ... <= a[i-1] by invariant
-			// so a[0...i) is sorted.
-		}
-		// termination: length == i so a[0..length) is a[0..i) which is sorted
-	}
-	
+
 	////////////////////////////////////////////////////////////////////////////
 	// Selection sort //////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////
-	
-	
+
 	public void selectionSort(List<E> a) {
-		// invariant:     0                           i         length
-		//            a: [ sorted, smaller then rest |    ?    ]
-		
+		// invariant: 0 i length
+		// a: [ sorted, smaller then rest | ? ]
+
 		int i = 0;
 		// initialization: a[0..0) is empty, thus sorted
-		
+
 		while (i < a.size()) {
 			i++; // progress: i increases
-			int k = indexOfMin(a,i-1,a.size());
-			swap(a,i-1,k);
+			int k = indexOfMin(a, i - 1, a.size());
+			swap(a, i - 1, k);
 			// preservation: a[i-1] was originally the minimum value of a[i-1...length)
 			// so it is smaller than all the rest.
 		}
 		// termination: i == length, so a[0..length) is a[0..i) which is sorted
 	}
-	
+
 	/** returns index of the smallest value of a[start...end) */
 	private int indexOfMin(List<E> a, int start, int end) {
-		// invariant:     start       min           i         end
-		//            a: [    >= x   | x |   >= x  |    ?    ]
-		
-		int min = start, i = start+1;
+		// invariant: start min i end
+		// a: [ >= x | x | >= x | ? ]
+
+		int min = start, i = start + 1;
 		// initialization: a[start..min) and a[min+1..i) are empty
-		
+
 		while (i < end) {
 			i++; // progress: i increasing
-			
-			//     start    min            i      end
-			// a: [  >= x  | x |  >= x  |?|   ?  ]
-			if (compare(a,i-1,min) < 0)
-				min = i-1;
-			
+
+			// start min i end
+			// a: [ >= x | x | >= x |?| ? ]
+			if (compare(a, i - 1, min) < 0)
+				min = i - 1;
+
 			// preservation: know that a[i-1] >= a[min]
 		}
 		// termination: i == end, so a[start..i) is a[start..end), and all
@@ -167,13 +108,12 @@ public abstract class Sorter<E> {
 	////////////////////////////////////////////////////////////////////////////
 
 	public void mergeSort(List<E> a) {
-		mergeSort(a,0,a.size());
+		mergeSort(a, 0, a.size());
 	}
-	
-	/** sort a[start..end) and leave rest of a alone
-	 * post condition:
-	 *            start         end
-	 * a: [      | sorted      |      ]
+
+	/**
+	 * sort a[start..end) and leave rest of a alone post condition: start end a: [ |
+	 * sorted | ]
 	 * 
 	 * @param a
 	 * @param start
@@ -182,145 +122,134 @@ public abstract class Sorter<E> {
 	private void mergeSort(List<E> a, int start, int end) {
 		if (end - start <= 1)
 			return;
-		
-		int mid = (end + start)/2;
-		
-		mergeSort(a,start,mid);
-		mergeSort(a,mid,end);
-		
-		//          start       mid        end
-		// a: [    |  sorted   |  sorted  |     ]
-		
+
+		int mid = (end + start) / 2;
+
+		mergeSort(a, start, mid);
+		mergeSort(a, mid, end);
+
+		// start mid end
+		// a: [ | sorted | sorted | ]
+
 		merge(a, start, mid, end);
 	}
-	
+
 	/**
-	 * Precondition:         start      mid        end
-	 *               a: [   |  sorted  |  sorted  |       ]
-	 *               
-	 * Postcondition:        start                 end
-	 *               a: [   |     sorted          |       ]
+	 * Precondition: start mid end a: [ | sorted | sorted | ]
+	 * 
+	 * Postcondition: start end a: [ | sorted | ]
 	 * 
 	 */
 	private void merge(List<E> a, int start, int mid, int end) {
 		List<E> result = new ArrayList<E>();
-		
+
 		// invariant: result is sorted
-		//            start       i                   mid          j                    end
-		//   a:  [   | in result | sorted, >= result | in result  |  sorted, >= result |     ] 
-		
-		int i = start; int j = mid;
-		
+		// start i mid j end
+		// a: [ | in result | sorted, >= result | in result | sorted, >= result | ]
+
+		int i = start;
+		int j = mid;
+
 		while (i != mid || j != end) {
 			if (i == mid) {
 				result.add(a.get(j));
 				j++;
-			}
-			else if (j == end) {
+			} else if (j == end) {
 				result.add(a.get(i));
 				i++;
-			}
-			else if (compare(a,i,j) < 0) {
+			} else if (compare(a, i, j) < 0) {
 				result.add(a.get(i));
 				i++;
-			}
-			else {
+			} else {
 				result.add(a.get(j));
 				j++;
 			}
 		}
-		
-		// a: [   |  in result   |  in result  |   ]
-		
+
+		// a: [ | in result | in result | ]
+
 		// copy result back into a
-		for(int k = 0; k < result.size(); k++) {
-			a.set(start+k, result.get(k));
+		for (int k = 0; k < result.size(); k++) {
+			a.set(start + k, result.get(k));
 		}
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////
 	// Tests ///////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////
-	
+
 	public static abstract class Tests {
 		protected abstract Sorter<Integer> sorter();
-		
-		private static List<Integer> testCase() {
-			//                   0 1 2 3 4 5 6 7 8
-			return Arrays.asList(1,0,7,3,5,4,9,2,0);
+
+		protected static List<Integer> testCase() {
+			// 0 1 2 3 4 5 6 7 8
+			return Arrays.asList(1, 0, 7, 3, 5, 4, 9, 2, 0);
 		}
-		
-		private static List<Integer> testCaseSorted() {
+
+		protected static List<Integer> testCaseSorted() {
 			List<Integer> result = testCase();
 			result.sort(Comparator.naturalOrder());
 			return result;
 		}
-		
+
 		@Test
 		public void testSwap() {
 			Sorter<Integer> s = sorter();
-			List<Integer>    a = testCase();
-			
-			s.swap(a,1,2);
+			List<Integer> a = testCase();
+
+			s.swap(a, 1, 2);
 			int i = a.get(1);
 			int j = a.get(2);
 			assertEquals(7, i);
-			assertEquals(0,j);
+			assertEquals(0, j);
 		}
-		
-		@Test
-		public void testCompare() {
-			Sorter<Integer> s = sorter();
-			List<Integer>    a = testCase();
 
-			assertTrue(s.compare(a,0,1) > 0);
+		@Test
+		protected void testCompare() {
+			Sorter<Integer> s = sorter();
+			List<Integer> a = testCase();
+
+			assertTrue(s.compare(a, 0, 1) > 0);
 			assertTrue(s.compare(a, 1, 8) == 0);
 			assertTrue(s.compare(a, 1, 0) < 0);
 		}
-		
-		@Test
-		public void testInsertionSort() {
-			Sorter<Integer> s = sorter();
-			List<Integer>    a = testCase();
-			s.insertionSort(a);
-			assertEquals(testCaseSorted(), a);
-		}
+
 		@Test
 		public void testIndexOfMin() {
 			Sorter<Integer> s = sorter();
-			List<Integer>    a = testCase();
-			
+			List<Integer> a = testCase();
+
 			int i = a.get(s.indexOfMin(a, 0, a.size()));
 			int j = a.get(s.indexOfMin(a, 2, 5));
 			assertEquals(0, i);
 			assertEquals(3, j);
 		}
-		
+
 		@Test
 		public void testMerge() {
 			Sorter<Integer> s = sorter();
-			//                                 0 1 2  3 4 5 6 7  8 9
-			//                                [      |     |    |   ]
-			List<Integer>    a = Arrays.asList(1,0,7 ,3,6,8,2,7 ,0,7);
-			List<Integer>  exp = Arrays.asList(1,0,7 ,2,3,6,7,8 ,0,7);
+			// 0 1 2 3 4 5 6 7 8 9
+			// [ | | | ]
+			List<Integer> a = Arrays.asList(1, 0, 7, 3, 6, 8, 2, 7, 0, 7);
+			List<Integer> exp = Arrays.asList(1, 0, 7, 2, 3, 6, 7, 8, 0, 7);
 			s.merge(a, 3, 6, 8);
-			assertEquals(exp,a);
+			assertEquals(exp, a);
 		}
-		
+
 		@Test
 		public void testMergeSort() {
 			Sorter<Integer> s = sorter();
-			List<Integer>    a = testCase();
+			List<Integer> a = testCase();
 			s.mergeSort(a);
-			assertEquals(testCaseSorted(), a);			
+			assertEquals(testCaseSorted(), a);
 		}
-		
+
 		@Test
 		public void testSelectionSort() {
 			Sorter<Integer> s = sorter();
-			List<Integer>    a = testCase();
+			List<Integer> a = testCase();
 			s.selectionSort(a);
-			assertEquals(testCaseSorted(), a);			
+			assertEquals(testCaseSorted(), a);
 		}
 	}
 }
