@@ -56,7 +56,7 @@ public class InsertionSorter<E> extends Sorter {
 	}
 
 	public static class Tests extends Sorter.Tests {
-		public  Sorter<Integer> sorter(){
+		public  InsertionSorter<Integer> sorter(){
 			return new InsertionSorter<Integer>(Comparator.naturalOrder());
 		}
 		
