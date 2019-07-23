@@ -31,8 +31,9 @@ public abstract class Sorter<E> {
 	 * Postcondition: a is sorted, (according to cmp)
 	 *     0            length
 	 * a: [   sorted   ]
+	 * @throws NotImplementedError 
 	 */
-	public abstract void sort(List<E> a);
+	public abstract void sort(List<E> a) throws NotImplementedError;
 	
 	/** exchange a[i] and a[j] */
 	private void swap(List<E> a, int i, int j) {
@@ -53,6 +54,19 @@ public abstract class Sorter<E> {
 	////////////////////////////////////////////////////////////////////////////
 	// Insertion sort                                                         //
 	////////////////////////////////////////////////////////////////////////////
+	
+	private class InsertionSorter<E> extends Sorter{
+
+		public InsertionSorter(Comparator cmp) {
+			super(cmp);
+		}
+
+		@Override
+		public void sort(List a) throws NotImplementedError {
+			 throw new NotImplementedError();
+		}
+		
+	}
 	
 	/**
 	 * Precondition:
